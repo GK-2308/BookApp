@@ -11,10 +11,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 public class DashboardUserActivity extends AppCompatActivity {
-
+// GK
     private ActivityDashboardUserBinding binding;
     private FirebaseAuth firebaseAuth;
-    private int a;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
