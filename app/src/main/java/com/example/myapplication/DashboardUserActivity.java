@@ -14,6 +14,7 @@ public class DashboardUserActivity extends AppCompatActivity {
 
     private ActivityDashboardUserBinding binding;
     private FirebaseAuth firebaseAuth;
+    private int a;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
