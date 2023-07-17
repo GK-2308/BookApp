@@ -85,10 +85,10 @@ private String category="";
 
 //setup info to add in firebase db
         HashMap<String, Object> hashMap = new HashMap<>();
-        hashMap.put("id", timestamp);
+        hashMap.put("id",""+timestamp);
         hashMap.put ("category",""+category);
         hashMap.put("timestamp", timestamp);
-        hashMap.put("id", ""+firebaseAuth.getUid());
+        hashMap.put("uid", ""+firebaseAuth.getUid());
 
         //agd to firebase db..... Database Root > Categories > categoryId > category info
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference ( "Categories");
