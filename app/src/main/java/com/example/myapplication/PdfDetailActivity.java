@@ -3,6 +3,7 @@ package com.example.myapplication;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
@@ -32,6 +33,15 @@ public class PdfDetailActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 onBackPressed();
+            }
+        });
+        // handle click , open to view pdf
+        binding.readBookBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent1=new Intent(PdfDetailActivity.this ,PdfViewActivity.class);// create activity for reading book
+                intent1.putExtra("bookId",bookId);
+                startActivity(intent1);
             }
         });
 
