@@ -2,7 +2,11 @@ package com.example.myapplication.adapters;
 
 import static com.example.myapplication.Constants.MAX_BYTES_PDF;
 
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication.MyApplication;
+import com.example.myapplication.PdfEditActivity;
 import com.example.myapplication.databinding.RowPdfAdminBinding;
 import com.example.myapplication.filters.FilterPdfAdmin;
 import com.example.myapplication.models.ModelPdf;
@@ -48,10 +53,15 @@ public class AdapterPdfAdmin extends RecyclerView.Adapter<AdapterPdfAdmin.Holder
     private FilterPdfAdmin filter;
     private static final String TAG = "PDF_ADAPTER_TAG";
 
+    private ProgressDialog progressDialog;
+
     public AdapterPdfAdmin(Context context, ArrayList<ModelPdf> pdfArrayList) {
         this.context = context;
         this.pdfArrayList = pdfArrayList;
         this.filterList = pdfArrayList;
+        progressDialog = new ProgressDialog(context);
+        progressDialog.setTitle("Please Wait!!");
+        progressDialog.setCanceledOnTouchOutside(false);
     }
 
     @NonNull
@@ -77,6 +87,86 @@ public class AdapterPdfAdmin extends RecyclerView.Adapter<AdapterPdfAdmin.Holder
         loadCategory(model,holder);
         loadPdfFromUrl(model,holder);
         loadPdfSize(model,holder);
+
+        holder.moreBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                moreOptionsDialog(model,holder);
+            }
+        });
+
+    }
+
+    private void moreOptionsDialog(ModelPdf model, HolderPdfAdmin holder) {
+        String bookId = model.getId();
+        String bookUrl = model.getUrl();
+        String bookTitle = model.getTitle();
+        String[] options = {"Edit","Delete"};
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("Choose Options")
+                .setItems(options, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int which) {
+                        if(which == 0)
+                        {
+                            //Edit Clicked
+                            Intent intent = new Intent(context, PdfEditActivity.class);
+                            intent.putExtra("bookId",bookId);
+                            //intent.putExtra("bookTitle",bookTitle);
+                            context.startActivity(intent);
+                        }
+                        else if(which==1)
+                        {
+                            //Delete Clicked
+                            deleteBook(model,holder);
+                        }
+                    }
+                })
+                .show();
+    }
+
+    private void deleteBook(ModelPdf model, HolderPdfAdmin holder) {
+        String bookId = model.getId();
+        String bookUrl = model.getUrl();
+        String bookTitle = model.getTitle();
+        progressDialog.setMessage("Deleting "+bookTitle+" ...");
+        progressDialog.show();
+
+        StorageReference storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(bookUrl);
+        storageReference.delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Books");
+                        reference.child(bookId)
+                                .removeValue()
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void unused) {
+                                        progressDialog.dismiss();
+                                        Toast.makeText(context, "Book Deleted Successfully!!", Toast.LENGTH_SHORT).show();
+
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        progressDialog.dismiss();
+                                        Toast.makeText(context, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+
+                                    }
+                                });
+
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        progressDialog.dismiss();
+                        Toast.makeText(context, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+
     }
 
     private void loadPdfFromUrl(ModelPdf model, HolderPdfAdmin holder) {
