@@ -39,7 +39,7 @@ public class PdfAddActivity extends AppCompatActivity {
     private FirebaseAuth firebaseAuth;
 
     // arraylist to hold pdf categories
-    private ArrayList<ModelCategory> categoryArrayList;
+    private ArrayList<String> categoryTitleArrayList,categoryIdArrayList;
 
     // progress dialog
     private ProgressDialog progressDialog;
@@ -100,7 +100,7 @@ public class PdfAddActivity extends AppCompatActivity {
 
 
     }
-    private String title="",description="",category="";
+    private String title="",description="";
     private void validateData() {
         //step 1: validate data
         Log.d(TAG,"Validating the data...");
@@ -108,7 +108,6 @@ public class PdfAddActivity extends AppCompatActivity {
         // get data
         title=binding.titleEt.getText().toString().trim();
         description=binding.descriptionEt.getText().toString().trim();
-        category=binding.categoryTv.getText().toString().trim();
 
         // validate data
         if(TextUtils.isEmpty(title)){
@@ -117,7 +116,7 @@ public class PdfAddActivity extends AppCompatActivity {
         else if(TextUtils.isEmpty(description)){
             Toast.makeText(this,"Enter description...",Toast.LENGTH_SHORT).show();
         }
-        else if(TextUtils.isEmpty(category)){
+        else if(TextUtils.isEmpty(selectedCategoryTitle)){
             Toast.makeText(this,"Pick category...",Toast.LENGTH_SHORT).show();
         }
         else if(pdfUri==null){
@@ -167,6 +166,7 @@ public class PdfAddActivity extends AppCompatActivity {
                         progressDialog.dismiss();
                         Log.d(TAG,"on Failure :Pdf upload failed due to "+e.getMessage());
                         Toast.makeText(PdfAddActivity.this,"Pdf upload failed due to "+e.getMessage(),Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(PdfAddActivity.this,DashboardAdminActivity.class));
                     }
                 });
     }
@@ -184,7 +184,7 @@ public class PdfAddActivity extends AppCompatActivity {
         hashMap.put("id",""+timestamp);
         hashMap.put("title",""+title);
         hashMap.put("description",""+description);
-        hashMap.put("category",""+category);
+        hashMap.put("categoryId",""+selectedCategoryId);
         hashMap.put("url",""+uploadedPdfUrl);
         hashMap.put("timestamp",timestamp);
 
@@ -197,6 +197,7 @@ public class PdfAddActivity extends AppCompatActivity {
                         progressDialog.dismiss();
                         Log.d(TAG,"onSuccess: Successfully Uploaded...");
                         Toast.makeText(PdfAddActivity.this," Successfully Uploaded...",Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(PdfAddActivity.this,DashboardAdminActivity.class));
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -205,6 +206,7 @@ public class PdfAddActivity extends AppCompatActivity {
                         progressDialog.dismiss();
                         Log.d(TAG,"onFailure: failed to upload to db due to "+e.getMessage());
                         Toast.makeText(PdfAddActivity.this,"failed to upload to db due to "+e.getMessage(),Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(PdfAddActivity.this,DashboardAdminActivity.class));
                     }
                 });
     }
@@ -213,21 +215,24 @@ public class PdfAddActivity extends AppCompatActivity {
         Log.d(TAG,"loadPdfCategories : Loading Pdf Categories...");
 
         //init arraylist
-        categoryArrayList=new ArrayList<>();
+        categoryTitleArrayList =new ArrayList<>();
+        categoryIdArrayList = new ArrayList<>();
 
         // get all categories from firebase
         DatabaseReference ref= FirebaseDatabase.getInstance().getReference("Categories");
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                categoryArrayList.clear();
+                categoryTitleArrayList.clear();
+                categoryIdArrayList.clear();
                 for(DataSnapshot ds : snapshot.getChildren())
                 {
                     //get data
-                    ModelCategory model=ds.getValue(ModelCategory.class);
-                    // add data to arraylist
-                    categoryArrayList.add(model);
-                    Log.d(TAG,"ondataChange : "+model.getCategory());
+                    String categoryId = ""+ds.child("id").getValue();
+                    String categoryTitle = ""+ds.child("category").getValue();
+
+                    categoryTitleArrayList.add(categoryTitle);
+                    categoryIdArrayList.add(categoryId);
                 }
 
             }
@@ -239,13 +244,14 @@ public class PdfAddActivity extends AppCompatActivity {
         });
     }
 
+    private String selectedCategoryId,selectedCategoryTitle;
     private void categoryPickDialog() {
         Log.d(TAG,"CategoryPickDialog : showing category Pick dialog");
 
-        String[] categoriesArray=new String[categoryArrayList.size()];
-        for(int i=0;i<categoryArrayList.size();i++)
+        String[] categoriesArray=new String[categoryTitleArrayList.size()];
+        for(int i = 0; i< categoryTitleArrayList.size(); i++)
         {
-            categoriesArray[i]=categoryArrayList.get(i).getCategory();
+            categoriesArray[i]= categoryTitleArrayList.get(i);
         }
 
         // alert dialog
@@ -256,11 +262,12 @@ public class PdfAddActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         // handle item click
                         // get clicked item from list
-                        String category=categoriesArray[which];
+                        selectedCategoryTitle=categoryTitleArrayList.get(which);
+                        selectedCategoryId = categoryIdArrayList.get(which);
                         // set to category textview
-                        binding.categoryTv.setText(category);
+                        binding.categoryTv.setText(selectedCategoryTitle);
 
-                        Log.d(TAG,"onClick : Selected category:"+category);
+                        Log.d(TAG,"onClick : Selected category:"+selectedCategoryTitle);
                     }
                 })
                 .show();

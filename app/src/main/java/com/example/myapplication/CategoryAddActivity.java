@@ -95,12 +95,12 @@ private String category="";
                 ref.child(""+timestamp)
                         .setValue(hashMap)
                         .addOnSuccessListener (new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void unused) {
-                //category add success
-                progressDialog.dismiss();
-                Toast. makeText( CategoryAddActivity. this,  "Category added successfully...", Toast.LENGTH_SHORT) .show();}
-                        })
+                                     @Override
+                                    public void onSuccess(Void unused) {
+                                    //category add success
+                                        progressDialog.dismiss();
+                                        Toast. makeText( CategoryAddActivity. this,  "Category added successfully...", Toast.LENGTH_SHORT) .show();}
+                                    })
                                     .addOnFailureListener(new OnFailureListener(){
                                         @Override
                                         public void onFailure(@NonNull Exception e) {
@@ -108,7 +108,10 @@ private String category="";
                                             progressDialog.dismiss();
                                             Toast. makeText( CategoryAddActivity. this, ""+e.getMessage(), Toast.LENGTH_SHORT) .show();}
                                     });
-                                    }
+                //onBackPressed();
+                startActivity(new Intent(CategoryAddActivity.this,DashboardAdminActivity.class));
+
+    }
 
 
 
