@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.myapplication.activities;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -166,7 +166,7 @@ public class PdfAddActivity extends AppCompatActivity {
                         progressDialog.dismiss();
                         Log.d(TAG,"on Failure :Pdf upload failed due to "+e.getMessage());
                         Toast.makeText(PdfAddActivity.this,"Pdf upload failed due to "+e.getMessage(),Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(PdfAddActivity.this,DashboardAdminActivity.class));
+                        startActivity(new Intent(PdfAddActivity.this, DashboardAdminActivity.class));
                     }
                 });
     }

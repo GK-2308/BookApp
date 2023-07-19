@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.myapplication.activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -75,7 +75,7 @@ public class DashboardAdminActivity extends AppCompatActivity {
         binding.addCategoryBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(DashboardAdminActivity.this,CategoryAddActivity.class));
+                startActivity(new Intent(DashboardAdminActivity.this, CategoryAddActivity.class));
             }
         });
 
@@ -83,7 +83,7 @@ public class DashboardAdminActivity extends AppCompatActivity {
         binding.addPdfFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(DashboardAdminActivity.this,PdfAddActivity.class));
+                startActivity(new Intent(DashboardAdminActivity.this, PdfAddActivity.class));
             }
         });
     }

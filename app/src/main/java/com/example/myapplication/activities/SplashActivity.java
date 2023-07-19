@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.myapplication.activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 
+import com.example.myapplication.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -37,7 +38,7 @@ public class SplashActivity extends AppCompatActivity {
         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
         if(firebaseUser == null)
         {
-            startActivity(new Intent(SplashActivity.this,MainActivity.class));
+            startActivity(new Intent(SplashActivity.this, MainActivity.class));
             finish();
         }
         else
@@ -50,12 +51,12 @@ public class SplashActivity extends AppCompatActivity {
                             String userType = ""+snapshot.child("userType").getValue();
                             if(userType.equals("user"))
                             {
-                                startActivity(new Intent(SplashActivity.this,DashboardUserActivity.class));
+                                startActivity(new Intent(SplashActivity.this, DashboardUserActivity.class));
                                 finish();
                             }
                             else if(userType.equals("admin"))
                             {
-                                startActivity(new Intent(SplashActivity.this,DashboardAdminActivity.class));
+                                startActivity(new Intent(SplashActivity.this, DashboardAdminActivity.class));
                                 finish();
                             }
 

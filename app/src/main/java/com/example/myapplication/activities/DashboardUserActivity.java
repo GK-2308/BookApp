@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.myapplication.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -12,6 +12,7 @@ import com.google.firebase.auth.FirebaseUser;
 
 public class DashboardUserActivity extends AppCompatActivity {
 // GK
+
     private ActivityDashboardUserBinding binding;
     private FirebaseAuth firebaseAuth;
 

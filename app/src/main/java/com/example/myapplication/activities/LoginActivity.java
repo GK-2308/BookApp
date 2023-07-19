@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.myapplication.activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,7 +11,6 @@ import android.util.Patterns;
 import android.view.View;
 import android.widget.Toast;
 
-import com.example.myapplication.databinding.ActivityLoginBinding;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.AuthResult;
@@ -25,13 +24,13 @@ import com.google.firebase.database.ValueEventListener;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private ActivityLoginBinding binding;
+    private com.example.myapplication.databinding.ActivityLoginBinding binding;
     private FirebaseAuth firebaseAuth;
     private ProgressDialog progressDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityLoginBinding.inflate(getLayoutInflater());
+        binding = com.example.myapplication.databinding.ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         firebaseAuth = FirebaseAuth.getInstance();
         progressDialog = new ProgressDialog(this);
@@ -105,12 +104,12 @@ public class LoginActivity extends AppCompatActivity {
                         String userType = ""+snapshot.child("userType").getValue();
                         if(userType.equals("user"))
                         {
-                            startActivity(new Intent(LoginActivity.this,DashboardUserActivity.class));
+                            startActivity(new Intent(LoginActivity.this, DashboardUserActivity.class));
                             finish();
                         }
                         else if(userType.equals("admin"))
                         {
-                            startActivity(new Intent(LoginActivity.this,DashboardAdminActivity.class));
+                            startActivity(new Intent(LoginActivity.this, DashboardAdminActivity.class));
                             finish();
                         }
 

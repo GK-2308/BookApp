@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.myapplication.activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,8 +10,6 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Toast;
 
-import com.example.myapplication.databinding.ActivityCategoryAddBinding;
-import com.example.myapplication.databinding.ActivityDashboardAdminBinding;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -109,7 +107,7 @@ private String category="";
                                             Toast. makeText( CategoryAddActivity. this, ""+e.getMessage(), Toast.LENGTH_SHORT) .show();}
                                     });
                 //onBackPressed();
-                startActivity(new Intent(CategoryAddActivity.this,DashboardAdminActivity.class));
+                startActivity(new Intent(CategoryAddActivity.this, DashboardAdminActivity.class));
 
     }
 

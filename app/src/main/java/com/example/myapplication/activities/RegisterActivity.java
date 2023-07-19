@@ -1,7 +1,4 @@
-package com.example.myapplication;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
+package com.example.myapplication.activities;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -10,6 +7,10 @@ import android.text.TextUtils;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 
 import com.example.myapplication.databinding.ActivityRegisterBinding;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -128,7 +129,7 @@ public class RegisterActivity extends AppCompatActivity {
                         //data added
                         progressDialog.dismiss();
                         Toast.makeText(RegisterActivity.this, "Account Created", Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(RegisterActivity.this,DashboardUserActivity.class));
+                        startActivity(new Intent(RegisterActivity.this, DashboardUserActivity.class));
                         finish();
                     }
                 })
