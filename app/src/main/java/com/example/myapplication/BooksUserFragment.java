@@ -1,12 +1,28 @@
 package com.example.myapplication;
 
+import android.graphics.ColorSpace;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.example.myapplication.adapters.AdapterPdfUser;
+import com.example.myapplication.databinding.FragmentBooksUserBinding;
+import com.example.myapplication.models.ModelPdf;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -15,33 +31,27 @@ import android.view.ViewGroup;
  */
 public class BooksUserFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+   private  String categoryId;
+   private  String category;
+   private String uid;
+   private ArrayList<ModelPdf> pdfArrayList;
+   private AdapterPdfUser adapterPdfUser;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+   private FragmentBooksUserBinding binding;
+
+   private static final String TAG="BOOKS_USER_TAG";
 
     public BooksUserFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment BooksUserFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static BooksUserFragment newInstance(String param1, String param2) {
+
+    public static BooksUserFragment newInstance(String categoryId, String category,String uid) {
         BooksUserFragment fragment = new BooksUserFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+       args.putString("categoryId",categoryId);
+        args.putString("category",category);
+        args.putString("uid",uid);
         fragment.setArguments(args);
         return fragment;
     }
@@ -50,8 +60,9 @@ public class BooksUserFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            categoryId=getArguments().getString("categoryId");
+            category=getArguments().getString("category");
+            uid=getArguments().getString("uid");
         }
     }
 
@@ -59,6 +70,129 @@ public class BooksUserFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_books_user, container, false);
+        binding=FragmentBooksUserBinding.inflate(LayoutInflater.from(getContext()),container,false);
+        Log.d(TAG,"onCreateVuew: category: "+category);
+        if(category.equals("All")){
+            loadAllBooks();
+        }
+        else if(category.equals("Most Viewed"))
+        {
+            loadMostViewedDownloadedBooks("viewsCount");
+        }
+        else if(category.equals("Most Downloaded"))
+        {
+            loadMostViewedDownloadedBooks("downloadsCount");
+        }
+        else
+        {
+            loadCategorizedBooks();
+        }
+
+        binding.searchEt.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                try{
+
+                }
+                catch (Exception e)
+                {
+                    Log.d(TAG,"onTextChanged"+e.getMessage());
+                }
+
+                adapterPdfUser.getFilter().filter(s);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+        return binding.getRoot();
+    }
+
+
+
+
+    private void loadAllBooks() {
+        pdfArrayList=new ArrayList<>();
+
+        DatabaseReference ref= FirebaseDatabase.getInstance().getReference("Books");
+        ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                pdfArrayList.clear();
+                for(DataSnapshot ds : snapshot.getChildren()){
+                    ModelPdf model=ds.getValue(ModelPdf.class);
+                    pdfArrayList.add(model);
+                }
+
+                adapterPdfUser=new AdapterPdfUser(getContext(),pdfArrayList);
+                binding.booksRv.setAdapter(adapterPdfUser);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void loadMostViewedDownloadedBooks(String orderBy) {
+
+        pdfArrayList=new ArrayList<>();
+
+        DatabaseReference ref= FirebaseDatabase.getInstance().getReference("Books");
+        ref.orderByChild(orderBy).limitToLast(10) //load most viewed or downloaded nool
+                .addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                pdfArrayList.clear();
+                for(DataSnapshot ds : snapshot.getChildren()){
+                    ModelPdf model=ds.getValue(ModelPdf.class);
+                    pdfArrayList.add(model);
+                }
+
+                adapterPdfUser=new AdapterPdfUser(getContext(),pdfArrayList);
+                binding.booksRv.setAdapter(adapterPdfUser);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+    }
+
+    private void loadCategorizedBooks() {
+        pdfArrayList=new ArrayList<>();
+
+        DatabaseReference ref= FirebaseDatabase.getInstance().getReference("Books");
+        ref.orderByChild("categoryId").equalTo(categoryId)
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        pdfArrayList.clear();
+                        for(DataSnapshot ds : snapshot.getChildren()){
+                            ModelPdf model=ds.getValue(ModelPdf.class);
+                            pdfArrayList.add(model);
+                        }
+
+                        adapterPdfUser=new AdapterPdfUser(getContext(),pdfArrayList);
+                        binding.booksRv.setAdapter(adapterPdfUser);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+
     }
 }
