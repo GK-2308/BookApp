@@ -24,6 +24,7 @@ import com.github.barteksc.pdfviewer.listener.OnLoadCompleteListener;
 import com.github.barteksc.pdfviewer.listener.OnPageErrorListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -135,7 +136,7 @@ public class MyApplication extends Application {
                 });
     }
 
-    public static void loadPdfFromUrlSinglePage(String pdfUrl, String pdfTitle, PDFView pdfView,ProgressBar progressBar) {
+    public static void loadPdfFromUrlSinglePage(String pdfUrl, String pdfTitle, PDFView pdfView,ProgressBar progressBar, TextView pagesTv) {
         String TAG = "PDF_FROM_URL";
         StorageReference ref = FirebaseStorage.getInstance().getReferenceFromUrl(pdfUrl);
         ref.getBytes(MAX_BYTES_PDF)
@@ -167,6 +168,8 @@ public class MyApplication extends Application {
                                     @Override
                                     public void loadComplete(int nbPages) {
                                         progressBar.setVisibility(View.INVISIBLE);
+                                        if(pagesTv!=null)
+                                            pagesTv.setText(""+nbPages);
                                     }
                                 })
                                 .load();
@@ -227,7 +230,7 @@ public class MyApplication extends Application {
                 });
     }
 
-    public  static void  downloadBook(Context context, String bookId,String bookTitle, String bookUrl)
+    public  static void  downloadBook(Context context, String bookId,String bookTitle, String bookUrl,TextView downloadTv)
     {
         Log.d(TAG,"downloadBook: downloading book...");
 
@@ -245,7 +248,7 @@ public class MyApplication extends Application {
                 .addOnSuccessListener(new OnSuccessListener<byte[]>() {
                     @Override
                     public void onSuccess(byte[] bytes) {
-                        saveDownloadBook(context,progressDialog,bytes,nameWithExtension,bookId);
+                        saveDownloadBook(context,progressDialog,bytes,nameWithExtension,bookId,downloadTv);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -257,11 +260,11 @@ public class MyApplication extends Application {
                 });
     }
 
-    private static void saveDownloadBook(Context context, ProgressDialog progressDialog, byte[] bytes, String nameWithExtension, String bookId) {
+    private static void saveDownloadBook(Context context, ProgressDialog progressDialog, byte[] bytes, String nameWithExtension, String bookId,TextView downloadTv) {
 
         try {
             Log.d(TAG,"saveDownloadedBook: saving downloading book");
-            File downloadsFolder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            File downloadsFolder = Environment.getExternalStoragePublicDirectory("Books_Pdf");
             downloadsFolder.mkdirs();
 
             String filePath=downloadsFolder.getPath() +"/"+nameWithExtension;
@@ -270,11 +273,12 @@ public class MyApplication extends Application {
             out.write(bytes);
             out.close();
 
-            Toast.makeText(context,"Saved to Download Folder",Toast.LENGTH_SHORT).show();
+            Toast.makeText(context,"Saved to Books_Pdf Folder",Toast.LENGTH_SHORT).show();
+            //downloadTv.setText(downloadTv.getText());
             Log.d(TAG,"saveDownloadedBook: save to downloaded folder  ");
             progressDialog.dismiss();
 
-            incrementBookDownloadCount(bookId);
+            incrementBookDownloadCount(bookId,downloadTv);
         }
         catch (Exception e)
         {
@@ -283,7 +287,7 @@ public class MyApplication extends Application {
         }
     }
 
-    private static void incrementBookDownloadCount(String bookId) {
+    private static void incrementBookDownloadCount(String bookId,TextView downloadTv) {
         DatabaseReference ref=FirebaseDatabase.getInstance().getReference("Books");
         ref.child(bookId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -306,7 +310,7 @@ public class MyApplication extends Application {
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void unused) {
-
+                                        downloadTv.setText(String.valueOf(newDownloadsCount));
                                     }
                                 })
                                 .addOnFailureListener(new OnFailureListener() {
@@ -322,5 +326,89 @@ public class MyApplication extends Application {
 
                     }
                 });
+    }
+
+    /*public static void loadPdfPageCount(Context context,String pdfUrl,TextView pagesTv)
+    {
+        StorageReference storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(pdfUrl);
+        storageReference.getBytes(MAX_BYTES_PDF)
+                .addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                    @Override
+                    public void onSuccess(byte[] bytes) {
+                        PDFView pdfView = new PDFView(context,null);
+                        pdfView.fromBytes(bytes)
+                                .onLoad(new OnLoadCompleteListener() {
+                                    @Override
+                                    public void loadComplete(int nbPages) {
+                                        pagesTv.setText(""+nbPages);
+                                    }
+                                });
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+
+                    }
+                });
+    }*/
+    
+    public static void addToFavorite(Context context, String bookId)
+    {
+        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        if(firebaseAuth.getCurrentUser()==null)
+        {
+            Toast.makeText(context, "You're Not Logged In", Toast.LENGTH_SHORT).show();
+        }
+        else
+        {
+            long timestamp = System.currentTimeMillis();
+            HashMap<String,Object> hashMap = new HashMap<>();
+            hashMap.put("bookId",""+bookId);
+            hashMap.put("timestamp",""+timestamp);
+
+            DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Users");
+            ref.child(firebaseAuth.getUid()).child("Favorites").child(bookId)
+                    .setValue(hashMap)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void unused) {
+                            Toast.makeText(context, "Added to Favorites", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(context, "Failed to Add to Favorites due to "+e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }
+    }
+
+    public static void removeFromFavorites(Context context,String bookId)
+    {
+        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        if(firebaseAuth.getCurrentUser()==null)
+        {
+            Toast.makeText(context, "You're Not Logged In", Toast.LENGTH_SHORT).show();
+        }
+        else
+        {
+            DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Users");
+            ref.child(firebaseAuth.getUid()).child("Favorites").child(bookId)
+                    .removeValue()
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void unused) {
+                            Toast.makeText(context, "Removed From Favorites", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(context, "Failed to Remove From Favorites due to "+e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }
     }
 }

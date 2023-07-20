@@ -72,7 +72,7 @@ public class AdapterPdfAdmin extends RecyclerView.Adapter<AdapterPdfAdmin.Holder
         holder.dateTv.setText(formattedDate);
 
         MyApplication.loadCategory(""+categoryId,holder.categoryTv);
-        MyApplication.loadPdfFromUrlSinglePage(""+pdfUrl,""+title,holder.pdfView,holder.progressBar);
+        MyApplication.loadPdfFromUrlSinglePage(""+pdfUrl,""+title,holder.pdfView,holder.progressBar,null);
         MyApplication.loadPdfSize(""+pdfUrl,""+title,holder.sizeTv);
 
         holder.moreBtn.setOnClickListener(new View.OnClickListener() {

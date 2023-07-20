@@ -3,11 +3,12 @@ package com.example.myapplication.models;
 public class ModelPdf {
     String uid,id,title,description,categoryId,url;
     long timestamp,viewsCount,downlaodsCount;
+    boolean favorite;
 
     public ModelPdf() {
     }
 
-    public ModelPdf(String uid, String id, String title, String description, String categoryId, String url, long timestamp, long viewsCount, long downlaodsCount) {
+    public ModelPdf(String uid, String id, String title, String description, String categoryId, String url, long timestamp, long viewsCount, long downlaodsCount, boolean favorite) {
         this.uid = uid;
         this.id = id;
         this.title = title;
@@ -17,6 +18,7 @@ public class ModelPdf {
         this.timestamp = timestamp;
         this.viewsCount = viewsCount;
         this.downlaodsCount = downlaodsCount;
+        this.favorite = favorite;
     }
 
     public String getUid() {
@@ -89,5 +91,13 @@ public class ModelPdf {
 
     public void setDownlaodsCount(long downlaodsCount) {
         this.downlaodsCount = downlaodsCount;
+    }
+
+    public boolean isFavorite() {
+        return favorite;
+    }
+
+    public void setFavorite(boolean favorite) {
+        this.favorite = favorite;
     }
 }

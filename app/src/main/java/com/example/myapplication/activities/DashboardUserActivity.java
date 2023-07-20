@@ -52,9 +52,19 @@ public class DashboardUserActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 firebaseAuth.signOut();
-                checkUser();
+                //checkUser();
+                startActivity(new Intent(DashboardUserActivity.this, MainActivity.class));
+                finish();
             }
         });
+
+        binding.profileBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(DashboardUserActivity.this, ProfileActivity.class));
+            }
+        });
+
     }
 
     private void setupViewPagerAdapter(ViewPager viewPager)
@@ -149,8 +159,9 @@ public class DashboardUserActivity extends AppCompatActivity {
         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
         if(firebaseUser == null)
         {
-            startActivity(new Intent(DashboardUserActivity.this, MainActivity.class));
-            finish();
+            /*startActivity(new Intent(DashboardUserActivity.this, MainActivity.class));
+            finish();*/
+            binding.subTitleTv.setText("Not Logged In");
         }
         else
         {

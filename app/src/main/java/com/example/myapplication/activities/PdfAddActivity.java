@@ -182,7 +182,7 @@ public class PdfAddActivity extends AppCompatActivity {
         HashMap<String,Object> hashMap=new HashMap<>();
         hashMap.put("uid",""+uid);
         hashMap.put("id",""+timestamp);
-        hashMap.put("category",selectedCategoryTitle);
+        //hashMap.put("category",selectedCategoryTitle);
         hashMap.put("title",""+title);
         hashMap.put("description",""+description);
         hashMap.put("categoryId",""+selectedCategoryId);

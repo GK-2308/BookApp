@@ -1,5 +1,6 @@
 package com.example.myapplication.adapters;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -67,7 +68,7 @@ public class AdapterPdfUser extends RecyclerView.Adapter<AdapterPdfUser.HolderPd
         holder.descriptionTv.setText(description);
         holder.dataTv.setText(data);
 
-        MyApplication.loadPdfFromUrlSinglePage(""+pdfUrl,""+title,holder.pdfView,holder.progressBar);
+        MyApplication.loadPdfFromUrlSinglePage(""+pdfUrl,""+title,holder.pdfView,holder.progressBar,null);
 
         MyApplication.loadCategory(""+categoryId,holder.categoryTv);
 
@@ -107,6 +108,8 @@ public class AdapterPdfUser extends RecyclerView.Adapter<AdapterPdfUser.HolderPd
 
             titleTv=binding.titleTv;
             descriptionTv=binding.descriptionTv;
+            pdfView = binding.pdfView;
+            progressBar = binding.progressBar;
             categoryTv=binding.categoryTv;
             sizeTv=binding.sizeTv;
             dataTv=binding.dateTv;
