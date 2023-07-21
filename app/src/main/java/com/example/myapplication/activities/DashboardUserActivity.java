@@ -131,6 +131,7 @@ public class DashboardUserActivity extends AppCompatActivity {
 
         @Override
         public Fragment getItem(int position) {
+
             return fragmentList.get(position);
         }
 
